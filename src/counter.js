@@ -7,13 +7,6 @@ export default class Counter extends React.Component {
         this.state = {
             count: 0,
         };
-
-        // Обновление значения ежесекундно
-        setInterval(() => {
-            this.setState({
-                count: this.state.count + 1,
-            });
-        }, 1000);
     }
 
     componentDidMount() {
@@ -21,6 +14,20 @@ export default class Counter extends React.Component {
     }
 
     render() {
-        return <p>Счет: {this.state.count}</p>;
+        return (
+            <div>
+                <p>Счет: {this.state.count}</p>
+                {/* Добавляем обработчик onClick */}
+                <button
+                    onClick={() =>
+                        this.setState({
+                            count: this.state.count + 1,
+                        })
+                    }
+                >
+                    Increment
+                </button>
+            </div>
+        );
     }
 }

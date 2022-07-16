@@ -5,8 +5,14 @@ const createElement = (type, props = {}, ...children) => {
     if (type.prototype && type.prototype.isReactClassComponent) {
         const componentInstance = new type(props);
 
-        // Присваиваем текущий экземпляр vNode
         componentInstance.__vNode = componentInstance.render();
+
+        // Добавляем хук к виртуальной ноде snabbdom при создании этой ноды в реальном DOM
+        componentInstance.__vNode.data.hook = {
+            create: () => {
+                componentInstance.componentDidMount();
+            },
+        };
 
         return componentInstance.__vNode;
     }
@@ -15,7 +21,26 @@ const createElement = (type, props = {}, ...children) => {
         return type(props);
     }
 
-    return h(type, { props }, children);
+    props = props || {};
+    let dataProps = {};
+    let eventProps = {};
+
+    // Этот блок кода нужен для разделения атрибутов на пропсы и обработчики событий
+    for (let propKey in props) {
+        // Обработчики событий всегда начинаются с on, например: onClick, onChange и т. д.
+        if (propKey.startsWith("on")) {
+            // превращаем onClick в click
+            const event = propKey.substring(2).toLowerCase();
+
+            eventProps[event] = props[propKey];
+        } else {
+            dataProps[propKey] = props[propKey];
+        }
+    }
+
+    // { props: dataProps } - пропсы snabbdom
+    // { on: eventProps } - обработчики событий
+    return h(type, { props: dataProps, on: eventProps }, children);
 };
 
 // Базовый класс Component

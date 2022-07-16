@@ -1,10 +1,12 @@
 // src/react-dom.js
-import React from "./react";
 import * as snabbdom from "snabbdom";
 import propsModule from "snabbdom/modules/props";
+import eventlistenersModule from "snabbdom/modules/eventlisteners";
+import React from "./react";
 
 // propsModule отвечает за модификацию текстовых атрибутов
-const reconcile = snabbdom.init([propsModule]);
+// eventListenersModule отвечает за обработку событий на элементах
+const reconcile = snabbdom.init([propsModule, eventlistenersModule]);
 let rootVNode;
 
 const render = (el, rootDomElement) => {
