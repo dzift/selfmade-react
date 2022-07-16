@@ -1,14 +1,38 @@
-// React.render(<App />, document.getElementById('root'));
-// el -> <App />
-// rootDomElement -> document.getElementById('root')
-const render = (el, rootDomElement) => {
-    // В этой функции описывается механизм размещения элемента el в указанном узле rootDomElement
-    // Например, ReactDom.render(<App />, document.getElementById('root'));
-}
+// src/react-dom.js
+import React from "./react";
+import * as snabbdom from "snabbdom";
+import propsModule from "snabbdom/modules/props";
 
-// Экспортируем как ReactDom.render
+// propsModule отвечает за модификацию текстовых атрибутов
+const reconcile = snabbdom.init([propsModule]);
+let rootVNode;
+
+const render = (el, rootDomElement) => {
+    // Этот блок кода будет вызван при первом вызове функции render
+    if (rootVNode == null) {
+        rootVNode = rootDomElement;
+    }
+
+    // Запоминаем VNode, которую возвращает reconcile
+    rootVNode = reconcile(rootVNode, el);
+};
+
+// ReactDom указывает React, как обновлять DOM
+React.__updater = (componentInstance) => {
+    // В этом методе описана логика обновления DOM, когда вызывается this.setState в компонентах
+
+    // Получаем текущий элемент oldVNode, который сохранён в __vNode
+    const oldVNode = componentInstance.__vNode;
+    // Присваеваем обновлённую версию DOM-узла с помощью вызова метода render у переданного элемента
+    const newVNode = componentInstance.render();
+
+    // Обновляем __vNode свойство — для этого заменяем oldVNode на newVNode
+    componentInstance.__vNode = reconcile(oldVNode, newVNode);
+};
+
+// Экспортируем функцию, чтобы использовать её как ReactDom.render
 const ReactDom = {
-    render
+    render,
 };
 
 export default ReactDom;
